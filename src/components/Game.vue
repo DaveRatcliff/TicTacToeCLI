@@ -2,7 +2,7 @@
   <div>
     <h1 v-show="hasWon === true">You won!</h1>
     <h1 v-show="invalidMove === true">Pick another space!</h1>
-    <h1 v-show="hasWon === false">`${nextPlayer}'s turn next`</h1>
+    <h1 v-show="hasWon === false">`${this.nextPlayer}`</h1>
     <table>
       <tr>
         <td id="cell-1" @click="handleClick(0)">{{ moves[0] }}</td>
@@ -21,7 +21,8 @@
       </tr>
     </table>
     <div>
-      <button @click="resetBoard" v-bind:disabled="hasWon === false">Reset</button>
+      <button @click="resetBoard" 
+      v-bind:disabled="hasWon === false && invalidMove === false">Reset</button>
     </div>
   </div>
 </template>
@@ -51,6 +52,7 @@ export default {
       this.nextPlayer = 'x'
       this.hasWon = false
     },
+
     handleClick (cellIndex) {
       if (this.hasWon) {
         return
