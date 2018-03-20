@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h1 v-show="hasWon === true">You won!</h1>
-    <h1 v-show="invalidMove === true">Pick another space!</h1>
-    <h1 v-show="hasWon === false">`${this.nextPlayer}`</h1>
+    <h1>{{ message }}</h1>
     <table>
       <tr>
         <td id="cell-1" @click="handleClick(0)">{{ moves[0] }}</td>
@@ -21,14 +19,19 @@
       </tr>
     </table>
     <div>
-      <button @click="resetBoard" 
-      v-bind:disabled="hasWon === false && invalidMove === false">Reset</button>
+      <button @click="resetBoard" :disabled="!canReset">Reset</button>
     </div>
   </div>
 </template>
 
 <script>
 const EMPTY_BOARD = [null, null, null, null, null, null, null, null, null]
+const STATES = {
+  NEW: 'NEW',
+  PLAYING: 'PLAYING',
+  DRAW: 'DRAW',
+  WIN: 'WIN',
+}
 const WINNING_COMBOS = [
   [0, 1, 2],
   [3, 4, 5],
@@ -43,21 +46,48 @@ export default {
   data: () => ({
     moves: [null, null, null, null, null, null, null, null, null],
     nextPlayer: 'x',
-    hasWon: false,
     invalidMove: false,
+    currentState: STATES.NEW, // new, playing, draw, win
   }),
+  computed: {
+    canReset: function () {
+      return this.currentState !== STATES.NEW
+    },
+    message: function () {
+      let message = ''
+      switch (this.currentState) {
+        case STATES.NEW:
+        case STATES.PLAYING:
+          message = `Next player: ${this.nextPlayer}`
+
+          if (this.invalidMove) {
+            message += ' (pick another spot)'
+          }
+          break
+        case STATES.DRAW:
+          message = `It's a draw`
+          break
+        case STATES.WIN:
+          message = `Player ${this.nextPlayer} wins!`
+          break
+      }
+      return message
+    },
+  },
   methods: {
     resetBoard () {
       this.moves = JSON.parse(JSON.stringify(EMPTY_BOARD))
       this.nextPlayer = 'x'
-      this.hasWon = false
+      this.currentState = STATES.NEW
     },
 
     handleClick (cellIndex) {
-      if (this.hasWon) {
+      // Do not handle click if we've won
+      if (this.currentState === STATES.WIN) {
         return
       }
 
+      // Check if space is used
       if (this.moves[cellIndex] !== null) {
         this.invalidMove = true
         return
@@ -66,8 +96,23 @@ export default {
       this.invalidMove = false
       this.$set(this.moves, cellIndex, this.nextPlayer)
 
+      // Transition fro "new" to "playing"
+      if (this.currentState === STATES.NEW) {
+        this.currentState = STATES.PLAYING
+      }
+
       // Check for win
-      this.hasWon = this.checkForWinner(this.moves, this.nextPlayer)
+      if (this.checkForWinner(this.moves, this.nextPlayer)) {
+        this.currentState = STATES.WIN
+        return
+      }
+
+      // See if any moves are left
+      const hasEmptySpace = ~this.moves.findIndex(space => space === null)
+      if (!hasEmptySpace) {
+        this.currentState = STATES.DRAW
+        return
+      }
 
       this.nextPlayer = this.nextPlayer === 'x' ? 'o' : 'x'
     },
