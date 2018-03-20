@@ -1,9 +1,10 @@
-<template>
+<!DOCTYPE html>
 <html>
-  <head>
+<head>
+    <link href="tictactoestyle.css" type="text/css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-  </head>
-  <body>
+</head>
+<body>
     <div id="app">
         <h1 v-show="hasWon === true">You won!</h1>
         <h1 v-show="invalidMove === true">Pick another space!</h1>
@@ -26,11 +27,7 @@
         </table>
         <button @click="resetBoard">Reset</button>
     </div>
-  </body>
-</html>
-</template>
-
-<script>
+    <script>
         const EMPTY_BOARD = [null,null,null,null,null,null,null,null,null]
         const WINNING_COMBOS = [
             [0,1,2],
@@ -96,22 +93,9 @@
                 }
             }
         })
-</script>
+    </script>
+</body>
+</html>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
+<!-- 1-9 starts at top left and scans like reading a book so that
+    I can figure out what parts of the border to cut off for the grid -->
