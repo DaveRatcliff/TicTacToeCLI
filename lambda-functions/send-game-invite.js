@@ -7,6 +7,17 @@ const client = new twilio(accountSid, authToken)
 
 exports.handler = async function ({ httpMethod, headers, body }, context, callback) {
     
+    try{ 
+        body = JSON.parse(body)
+    } catch(e){
+        return callback(null, {
+            statusCode: 400,
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ message: 'Body must be JSON' })
+        })
+
+    }
+
     let { to, gameId } = body
     let { 'x-api-key': apiKey } = headers
 
