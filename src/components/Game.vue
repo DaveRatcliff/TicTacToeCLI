@@ -21,10 +21,13 @@
     <div>
       <button @click="resetBoard" :disabled="!canReset">Reset</button>
     </div>
+    <game-invite v-if="currentState === 'NEW'" :gameId="gameId"></game-invite>
   </div>
 </template>
 
 <script>
+import GameInvite from '@/components/GameInvite'
+
 const EMPTY_BOARD = [null, null, null, null, null, null, null, null, null]
 const STATES = {
   NEW: 'NEW',
@@ -42,13 +45,16 @@ const WINNING_COMBOS = [
   [0, 4, 8],
   [2, 4, 6],
 ]
+const generateId = function b(a){return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,b)} // eslint-disable-line
 export default {
   data: () => ({
+    gameId: null,
     moves: [null, null, null, null, null, null, null, null, null],
     nextPlayer: 'x',
     invalidMove: false,
     currentState: STATES.NEW, // new, playing, draw, win
   }),
+  components: { GameInvite },
   computed: {
     canReset: function () {
       return this.currentState !== STATES.NEW
@@ -74,13 +80,16 @@ export default {
       return message
     },
   },
+  created () {
+    this.resetBoard()
+  },
   methods: {
     resetBoard () {
       this.moves = JSON.parse(JSON.stringify(EMPTY_BOARD))
       this.nextPlayer = 'x'
       this.currentState = STATES.NEW
+      this.gameId = generateId()
     },
-
     handleClick (cellIndex) {
       // Do not handle click if we've won
       if (this.currentState === STATES.WIN) {

@@ -6,10 +6,9 @@ const from = process.env.from
 const client = new twilio(accountSid, authToken)
 
 exports.handler = async function ({ httpMethod, headers, body }, context, callback) {
-    
-    try{ 
+    try { 
         body = JSON.parse(body)
-    } catch(e){
+    } catch(e) {
         return callback(null, {
             statusCode: 400,
             headers: { 'content-type': 'application/json' },
