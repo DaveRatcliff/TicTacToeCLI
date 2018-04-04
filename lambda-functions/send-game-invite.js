@@ -51,7 +51,11 @@ exports.handler = async function ({ httpMethod, headers, body }, context, callba
     try {
         messageId = await sendSms(to, message, from)
     } catch (e) {
-        return callback(e.toString())
+        return callback(null, {
+            statusCode: 400,
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ message: e.toString() }),
+        })
     }
 
     return callback(null, {
