@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>{{ message }}</h1>
-    <table>
+    <table align="center">
       <tr>
         <td id="cell-1" @click="handleClick(0)">{{ moves[0] }}</td>
         <td id="cell-2" @click="handleClick(1)">{{ moves[1] }}</td>
