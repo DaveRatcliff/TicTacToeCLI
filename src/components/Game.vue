@@ -149,7 +149,7 @@ export default {
     async postGameToApi () {
       const API_URL = window.location.hostname === 'localhost'
         ? 'http://localhost:3000'
-        : 'http://daveratcliff.herokuapp.com'
+        : 'https://daveratcliff.herokuapp.com'
       this.loading = true
       this.error = null
       try {
