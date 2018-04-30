@@ -1,5 +1,7 @@
 <template>
   <div>
+    <div v-if="loading">Loading</div>
+    <div v-if="error">{{ error }}</div>
     <h1>{{ message }}</h1>
     <table align="center">
       <tr>
@@ -53,6 +55,8 @@ export default {
     nextPlayer: 'x',
     invalidMove: false,
     currentState: STATES.NEW, // new, playing, draw, win
+    loading: false,
+    error: null,
   }),
   components: { GameInvite },
   computed: {
@@ -90,7 +94,7 @@ export default {
       this.currentState = STATES.NEW
       this.gameId = generateId()
     },
-    handleClick (cellIndex) {
+    async handleClick (cellIndex) {
       // Do not handle click if we've won
       if (this.currentState === STATES.WIN) {
         return
@@ -110,16 +114,18 @@ export default {
         this.currentState = STATES.PLAYING
       }
 
-      // Check for win
+      // Check for win (and post to API)
       if (this.checkForWinner(this.moves, this.nextPlayer)) {
         this.currentState = STATES.WIN
+        await this.postGameToApi()
         return
       }
 
-      // See if any moves are left
+      // See if any moves are left (and post to API if it's a DRAW)
       const hasEmptySpace = ~this.moves.findIndex(space => space === null)
       if (!hasEmptySpace) {
         this.currentState = STATES.DRAW
+        await this.postGameToApi()
         return
       }
 
@@ -139,6 +145,19 @@ export default {
       })
 
       return hasWon
+    },
+    async postGameToApi () {
+      const API_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:3000'
+        : 'http://daveratcliff.herokuapp.com'
+      this.loading = true
+      this.error = null
+      try {
+        await this.axios.post(`${API_URL}/api/games`, { moves: this.moves })
+      } catch (e) {
+        this.error = e.toString()
+      }
+      this.loading = false
     },
   },
 }
